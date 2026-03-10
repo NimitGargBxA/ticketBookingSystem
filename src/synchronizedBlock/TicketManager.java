@@ -1,25 +1,32 @@
 package synchronizedBlock;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TicketManager {
-    private int availableTickets;
+    private final AtomicInteger availableTickets;
 
     public TicketManager(int initialTickets) {
-        this.availableTickets = initialTickets;
+        this.availableTickets = new AtomicInteger(initialTickets);
     }
 
     public int getAvailableTickets() {
-        return availableTickets;
+        return availableTickets.get();
     }
 
-    // Attempts to book tickets for a user. Uses synchronized block to ensure thread safety.
     public void bookTickets(int requested, String userName) {
-        synchronized (this) {
-            if (requested <= availableTickets) {
-                availableTickets -= requested;
-                System.out.println(userName + " requested " + requested + " tickets → Booked → Remaining: "
-                        + availableTickets);
-            } else {
-                System.out.println(userName + " requested " + requested + " tickets → Failed (Not enough tickets)");
+        while (true) {
+            int current = availableTickets.get();
+
+            if (requested > current) {
+                System.out.println(userName + " requested " + requested +
+                        " tickets → Failed (Not enough tickets)");
+                return;
+            }
+
+            int updated = current - requested;
+            if (availableTickets.compareAndSet(current, updated)) {
+                System.out.println(userName + " requested " + requested +
+                        " tickets → Booked → Remaining: " + updated);
+                return;
             }
         }
     }

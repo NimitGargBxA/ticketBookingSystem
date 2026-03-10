@@ -2,6 +2,7 @@ package synchronizedBlock;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class TicketBookingSystem {
@@ -11,8 +12,24 @@ public class TicketBookingSystem {
         TicketManager ticketManager = new TicketManager(TicketConstants.INITIAL_TICKETS);
         ExecutorService executor = Executors.newFixedThreadPool(TicketConstants.THREAD_POOL_SIZE);
 
-        for (int i = 1; i <= TicketConstants.TOTAL_USERS; i++) {
-            executor.execute(new BookingTask(ticketManager, "User-" + i));
+        int usersPerThread = TicketConstants.TOTAL_USERS / TicketConstants.THREAD_POOL_SIZE;
+
+        for (int t = 0; t < TicketConstants.THREAD_POOL_SIZE; t++) {
+            int startUser = t * usersPerThread + 1;
+            int endUser = (t == TicketConstants.THREAD_POOL_SIZE - 1)
+                    ? TicketConstants.TOTAL_USERS
+                    : startUser + usersPerThread - 1;
+
+            executor.execute(() -> {
+                for (int i = startUser; i <= endUser; i++) {
+                    int requested = ThreadLocalRandom.current()
+                            .nextInt(
+                                    TicketConstants.MIN_REQUEST,
+                                    TicketConstants.MAX_REQUEST + 1
+                            );
+                    ticketManager.bookTickets(requested, "User-" + i);
+                }
+            });
         }
 
         executor.shutdown();
