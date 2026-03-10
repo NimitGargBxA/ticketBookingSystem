@@ -1,3 +1,5 @@
+package synchronizedBlock;
+
 public class TicketManager {
     private int availableTickets;
 
@@ -17,7 +19,7 @@ public class TicketManager {
                 System.out.println(userName + " requested " + requested + " tickets → Booked → Remaining: "
                         + availableTickets);
             } else {
-                System.out.printf(userName + " requested " + requested + " tickets → Failed (Not enough tickets)");
+                System.out.println(userName + " requested " + requested + " tickets → Failed (Not enough tickets)");
             }
         }
     }

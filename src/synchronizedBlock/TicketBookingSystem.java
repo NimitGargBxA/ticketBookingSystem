@@ -1,16 +1,18 @@
+package synchronizedBlock;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class TicketBookingSystem {
-    public static void main(String[] args) {
+    static void main() {
         long startTime = System.currentTimeMillis();
 
-        TicketManager inventory = new TicketManager(TicketConstants.INITIAL_TICKETS);
+        TicketManager ticketManager = new TicketManager(TicketConstants.INITIAL_TICKETS);
         ExecutorService executor = Executors.newFixedThreadPool(TicketConstants.THREAD_POOL_SIZE);
 
         for (int i = 1; i <= TicketConstants.TOTAL_USERS; i++) {
-            executor.execute(new BookingTask(inventory, "User-" + i));
+            executor.execute(new BookingTask(ticketManager, "User-" + i));
         }
 
         executor.shutdown();
@@ -28,8 +30,8 @@ public class TicketBookingSystem {
         System.out.println("----------------------------------");
         System.out.println("Initial Tickets: " + TicketConstants.INITIAL_TICKETS);
         System.out.println("Total Tickets Sold: " + (TicketConstants.INITIAL_TICKETS -
-                inventory.getAvailableTickets()));
-        System.out.println("Remaining Tickets: " + inventory.getAvailableTickets());
+                ticketManager.getAvailableTickets()));
+        System.out.println("Remaining Tickets: " + ticketManager.getAvailableTickets());
         System.out.println("Execution Time: " + (endTime - startTime) + " ms");
     }
 }

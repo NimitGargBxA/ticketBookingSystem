@@ -1,3 +1,5 @@
+package synchronizedBlock;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 // Represents a user attempting to book tickets.
